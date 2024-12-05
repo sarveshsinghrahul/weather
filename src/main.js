@@ -61,8 +61,8 @@ const sun = new THREE.Mesh(sunGeometry, sunMaterial);
 sun.position.set(0, 0, -600);
 scene.add(sun);
 
-camera.position.z = 15;
-camera.position.x = 15;
+camera.position.z = 550;
+camera.position.x = 150;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -129,33 +129,73 @@ function getCoordinatesFromClick(x, y) {
 
 // Function to get country from latitude and longitude using OpenCage API
 async function getCountryFromCoordinates(latitude, longitude) {
-    const apiKey = '0b1b712f5efa4894afd820edc4a17a80';  // Replace with your OpenCage API key
-    const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+%2C${longitude}&key=${apiKey}`;
-  
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-  
-  
-      if (data.results && data.results.length > 0) {
-        const country = data.results[0].components.country;
-        document.getElementById('countryName').innerText = `Country: ${country}`;
-      } else {
-        document.getElementById('countryName').innerText = 'Country not found.';
-      }
-    } catch (error) {
-      console.error('Error fetching country data:', error);
-      document.getElementById('countryName').innerText = 'Error retrieving country data.';
+  const apiKey = '0b1b712f5efa4894afd820edc4a17a80';  // Replace with your OpenCage API key
+  const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+%2C${longitude}&key=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.results && data.results.length > 0) {
+      const country = data.results[0].components.country;
+      document.getElementById('countryName').innerText = `Country: ${country}`;
+    } else {
+      document.getElementById('countryName').innerText = 'Country not found.';
     }
+  } catch (error) {
+    console.error('Error fetching country data:', error);
+    document.getElementById('countryName').innerText = 'Error retrieving country data.';
   }
-  
-  
+}
 
 // Event listener for mouse click
 window.addEventListener('click', (event) => {
   // Get coordinates of clicked point
   getCoordinatesFromClick(event.clientX, event.clientY);
 });
+
+// Function for the zoom-in effect
+function cameraZoomIn() {
+  const targetPosition = new THREE.Vector3(25, 0, -30); // Zoom target position (camera closer to the globe)
+  const zoomSpeed = 0.025; // Adjust the speed of zooming
+
+  // Smooth zoom animation
+  function animateZoom() {
+    camera.position.lerp(targetPosition, zoomSpeed); // Lerp smoothly from current to target position
+    if (camera.position.distanceTo(targetPosition) < 0.1) {
+      // Stop animation when close enough to target position
+      zoomInComplete = true;
+    }
+  }
+
+  let zoomInComplete = false;
+  
+  // Animation loop for zoom
+  function zoomAnimation() {
+    if (!zoomInComplete) {
+      animateZoom();
+      renderer.render(scene, camera); // Redraw the scene
+      controls.update();
+      updateEarthTexture();
+      requestAnimationFrame(zoomAnimation);
+    }
+  }
+
+  // Start the zoom animation
+  zoomAnimation();
+}
+
+// Function to hide hero section and zoom camera
+function hideHero() {
+  const heroSection = document.getElementById('hero');
+  heroSection.style.display = 'none'; // Hide the hero section
+  
+  cameraZoomIn(); // Apply zoom effect when hero section is clicked
+}
+
+// Event listener for button click
+const heroButton = document.getElementById('heroButton');
+heroButton.addEventListener('click', hideHero);
 
 // Render loop
 function animate() {
