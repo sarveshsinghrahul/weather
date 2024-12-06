@@ -74,7 +74,7 @@ function updateEarthTexture() {
   const lightDirection = directionalLight.position.clone().normalize();
   const globeDirection = globe.position.clone().normalize();
   const dot = lightDirection.dot(globeDirection);
-  
+
   if (dot > 0) {
     earthMaterial.map = earthDayTexture;
   } else {
@@ -89,7 +89,7 @@ function getCoordinatesFromClick(x, y) {
   const mouse = new THREE.Vector2();
   mouse.x = (x / window.innerWidth) * 2 - 1;
   mouse.y = -(y / window.innerHeight) * 2 + 1;
-  
+
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
@@ -102,34 +102,29 @@ function getCoordinatesFromClick(x, y) {
     const latitude = Math.asin(point.y / globe.geometry.parameters.radius) * (180 / Math.PI);
 
     // Longitude calculation (corrected approach)
-    let longitude = Math.atan2(point.z, point.x) * (180 / Math.PI);  // returns value between -π to π
-    
-    // Normalize longitude to be in the range [-180, 180] instead of [0, 360]
+    let longitude = Math.atan2(point.z, point.x) * (180 / Math.PI);
+
     if (longitude < 0) {
       longitude += 360;
     }
-    // Make sure longitude falls within the correct range [-180, 180] after the adjustment
     if (longitude > 180) {
       longitude -= 360;
-      longitude = longitude*-1;
+      longitude = longitude * -1;
     }
 
-    // Correctly format latitude and longitude with N/S and E/W
     const latitudeDirection = latitude >= 0 ? 'N' : 'S';
     const longitudeDirection = longitude >= 0 ? 'E' : 'W';
 
-    // Display the coordinates
-    document.getElementById('cityName').innerText = 
+    document.getElementById('cityName').innerText =
       `Latitude: ${Math.abs(latitude).toFixed(4)}° ${latitudeDirection}, Longitude: ${Math.abs(longitude).toFixed(4)}° ${longitudeDirection}`;
 
-    // Get the country using the OpenCage API
     getCountryFromCoordinates(latitude, longitude);
   }
 }
 
 // Function to get country from latitude and longitude using OpenCage API
 async function getCountryFromCoordinates(latitude, longitude) {
-  const apiKey = '0b1b712f5efa4894afd820edc4a17a80';  // Replace with your OpenCage API key
+  const apiKey = '0b1b712f5efa4894afd820edc4a17a80';
   const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+%2C${longitude}&key=${apiKey}`;
 
   try {
@@ -150,47 +145,44 @@ async function getCountryFromCoordinates(latitude, longitude) {
 
 // Event listener for mouse click
 window.addEventListener('click', (event) => {
-  // Get coordinates of clicked point
   getCoordinatesFromClick(event.clientX, event.clientY);
 });
 
-// Function for the zoom-in effect
+// Smooth zoom method
+let isZooming = false;
 function cameraZoomIn() {
-  const targetPosition = new THREE.Vector3(25, 0, -30); // Zoom target position (camera closer to the globe)
-  const zoomSpeed = 0.025; // Adjust the speed of zooming
+  if (isZooming) return;
+  isZooming = true;
 
-  // Smooth zoom animation
-  function animateZoom() {
-    camera.position.lerp(targetPosition, zoomSpeed); // Lerp smoothly from current to target position
-    if (camera.position.distanceTo(targetPosition) < 0.1) {
-      // Stop animation when close enough to target position
-      zoomInComplete = true;
-    }
-  }
+  const targetPosition = new THREE.Vector3(25, 0, -30);
+  const zoomDuration = 2000; // Zoom duration in milliseconds
+  const startTime = performance.now();
 
-  let zoomInComplete = false;
-  
-  // Animation loop for zoom
+  const initialPosition = camera.position.clone();
+
   function zoomAnimation() {
-    if (!zoomInComplete) {
-      animateZoom();
-      renderer.render(scene, camera); // Redraw the scene
-      controls.update();
-      updateEarthTexture();
+    const elapsed = performance.now() - startTime;
+    const t = Math.min(elapsed / zoomDuration, 1); // Clamp t to [0, 1]
+
+    camera.position.lerpVectors(initialPosition, targetPosition, t);
+    controls.update();
+
+    if (t < 1) {
       requestAnimationFrame(zoomAnimation);
+    } else {
+      isZooming = false;
     }
   }
 
-  // Start the zoom animation
   zoomAnimation();
 }
 
 // Function to hide hero section and zoom camera
 function hideHero() {
   const heroSection = document.getElementById('hero');
-  heroSection.style.display = 'none'; // Hide the hero section
-  
-  cameraZoomIn(); // Apply zoom effect when hero section is clicked
+  heroSection.style.display = 'none';
+
+  cameraZoomIn();
 }
 
 // Event listener for button click
