@@ -101,17 +101,10 @@ function getCoordinatesFromClick(x, y) {
     // Latitude calculation
     const latitude = Math.asin(point.y / globe.geometry.parameters.radius) * (180 / Math.PI);
 
-    // Longitude calculation (corrected approach)
-    let longitude = Math.atan2(point.z, point.x) * (180 / Math.PI);
+    // Longitude calculation with corrected alignment
+    let longitude = Math.atan2(-point.z, point.x) * (180 / Math.PI);
 
-    if (longitude < 0) {
-      longitude += 360;
-    }
-    if (longitude > 180) {
-      longitude -= 360;
-      longitude = longitude * -1;
-    }
-
+    // Longitude adjustment for proper hemisphere
     const latitudeDirection = latitude >= 0 ? 'N' : 'S';
     const longitudeDirection = longitude >= 0 ? 'E' : 'W';
 
@@ -121,6 +114,7 @@ function getCoordinatesFromClick(x, y) {
     getCountryFromCoordinates(latitude, longitude);
   }
 }
+
 
 // Function to get country from latitude and longitude using OpenCage API
 async function getCountryFromCoordinates(latitude, longitude) {
@@ -208,3 +202,4 @@ window.addEventListener('resize', () => {
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 });
+
