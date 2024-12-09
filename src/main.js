@@ -84,6 +84,32 @@ function updateEarthTexture() {
   earthMaterial.needsUpdate = true;
 }
 
+// Function to fetch and display weather data
+async function fetchWeather(latitude, longitude) {
+  const apiKey = '0cbd802472f021f1589271baf4555044'; // Replace with your OpenWeatherMap API key
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data) {
+      const temperature = data.main.temp; // Temperature in Celsius
+      const weatherDescription = data.weather[0].description; // Weather description
+
+      document.getElementById('weatherDescription').innerText = `Weather: ${weatherDescription}`;
+      document.getElementById('temperature').innerText = `Temperature: ${temperature.toFixed(1)}°C`;
+    } else {
+      document.getElementById('weatherDescription').innerText = 'Weather data not found.';
+      document.getElementById('temperature').innerText = '';
+    }
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+    document.getElementById('weatherDescription').innerText = 'Error retrieving weather data.';
+    document.getElementById('temperature').innerText = '';
+  }
+}
+
 // Function to convert 3D coordinates to latitude/longitude
 function getCoordinatesFromClick(x, y) {
   const mouse = new THREE.Vector2();
@@ -112,6 +138,8 @@ function getCoordinatesFromClick(x, y) {
       `Latitude: ${Math.abs(latitude).toFixed(4)}° ${latitudeDirection}, Longitude: ${Math.abs(longitude).toFixed(4)}° ${longitudeDirection}`;
 
     getCountryFromCoordinates(latitude, longitude);
+
+    fetchWeather(latitude,longitude);
   }
 }
 
