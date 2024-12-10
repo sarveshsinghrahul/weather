@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Globe App</title>
+  <script type="module" crossorigin src="/weather/assets/index-Ci2psV4q.js"></script>
+  <link rel="stylesheet" crossorigin href="/weather/assets/index-BFeRYpst.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="navbar-container">
+      <a href="#hero" class="logo">Weather Globe</a>
+      <ul class="nav-links">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#weatherInfo">Weather Info</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div id="hero">
+    <video id="heroVideo" autoplay muted loop>
+      <source src="/weather/assets/hero-C0zne5pr.mp4" type="video/mp4">
+      <!-- Fallback content if video is not supported -->
+      Your browser does not support the video tag.
+    </video>
+    <div>
+      <button id="heroButton">Check Weather</button>
+    </div>
+  </div>
+
+  <!-- Weather Info Section -->
+  <div id="weatherInfo">
+    <p id="cityName"></p>
+    <p id="countryName"></p>
+    <p id="weatherDescription">Weather: Loading...</p>
+    <p id="temperature">Temperature: Loading...</p>
+  </div>
+  
+
+  
+  <script>
+    // Function to scroll to the weather info section
+    function scrollToWeatherInfo() {
+      const weatherInfoSection = document.getElementById('weatherInfo');
+      window.scrollTo({
+        top: weatherInfoSection.offsetTop,
+        behavior: 'smooth'
+      });
+    }
+
+    // Function to hide hero section and fade video
+    function hideHero() {
+      const heroSection = document.getElementById('hero');
+      const video = document.getElementById('heroVideo');
+
+      // Trigger fade-out effect on the video
+      video.style.opacity = 0;
+
+      // Hide the hero section after the fade-out is complete
+      setTimeout(() => {
+        heroSection.style.display = 'none'; // Hide the hero section
+        scrollToWeatherInfo(); // Scroll to weather info after click
+      }, 3000); // 3 seconds to match the transition time
+    }
+
+    // Event listener for button click
+    const heroButton = document.getElementById('heroButton');
+    heroButton.addEventListener('click', hideHero);
+
+    // Toggle hamburger menu on small screens
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+  </script>
+</body>
+</html>
