@@ -11,21 +11,19 @@ document.body.appendChild(renderer.domElement);
 // Load Earth textures
 const textureLoader = new THREE.TextureLoader();
 const earthDayTexture = textureLoader.load('textures/8k_earth_daymap.jpg');
-const earthNightTexture = textureLoader.load('textures/8k_earth_nightmap.jpg');
 const starsTexture = textureLoader.load('textures/8k_stars.jpg');
 const sunTexture = textureLoader.load('textures/8k_sun.jpg');
 const specularTexture = textureLoader.load('textures/k.jpg');
 
+
 // Create Earth material with night and day textures
-const earthMaterial = new THREE.MeshStandardMaterial({
+const earthMaterial = new THREE.MeshPhongMaterial({
   map: earthDayTexture,
   specularMap: specularTexture,
-  metalness: 0.0,
-  roughness: 0.6,
-  emissive: 0x000000,
-  emissiveIntensity: 0,
-  side: THREE.FrontSide,
+  specular: new THREE.Color(0x222222), // Adjust specular highlight intensity
+  shininess: 50, // Adjust shininess
 });
+
 
 // Create the globe geometry and mesh
 const globeGeometry = new THREE.SphereGeometry(5, 128, 128);
@@ -63,6 +61,9 @@ scene.add(sun);
 
 camera.position.z = 550;
 camera.position.x = 150;
+
+earthMaterial.bumpMap = textureLoader.load('textures/8k_earth_normal_map.jpg');
+earthMaterial.bumpScale = 10.05;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
